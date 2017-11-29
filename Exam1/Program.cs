@@ -22,7 +22,7 @@ namespace Exam1
 
         public static List<Score> scores;
 
-        public static string folder = "Data";
+        public static string folder = "../../Data";
 
         static void Main(string[] args)
         {
