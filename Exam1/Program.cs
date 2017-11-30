@@ -42,69 +42,6 @@ namespace Exam1
             Save();
         }
 
-        static void Generator()
-        {
-            for (int i = 1; i <= 10; i++)
-            {
-                var subject = new Subject();
-                subject.Id = i;
-                subject.Name = $"Subject{i}";
-                subject.WeightScore = i % 3 + 1;
-                subjects.Add(subject);
-            }
-
-            for (int i = 1; i <= 10; i++)
-            {
-                var teacher = new Teacher();
-                teacher.Id = i;
-                teacher.Name = $"Teacher{i}";
-                teacher.Birthday = new DateTime(1111, 11, 11);
-                teacher.NativeLand = "Da Nang";
-                teacher.SubjectId = i;
-                teachers.Add(teacher);
-            }
-
-            for (int i = 1; i <= 5; i++)
-            {
-                var @class = new Class();
-                @class.Id = i;
-                @class.Name = $"Class{i}";
-                @class.TeacherId = i;
-                classes.Add(@class);
-            }
-
-            for (int i = 1; i <= 20; i++)
-            {
-                var student = new Student();
-                student.Id = i;
-                student.Name = $"Student{i}";
-                student.Birthday = new DateTime(1111, 11, 11);
-                student.NativeLand = "Quang Nam";
-                student.ClassId = i % 5 + 1;
-                students.Add(student);
-            }
-
-            for (int i = 1; i <= 20; i++)
-            {
-                var course = new Course();
-                course.Id = i;
-                course.ClassId = i % 5 + 1;
-                course.SubjectId = i % 10 + 1;
-                course.TeacherId = i % 10 + 1;
-                courses.Add(course);
-            }
-
-            for (int i = 1; i <= 20; i++)
-            {
-                var score = new Score();
-                score.Id = i;
-                score.StudentId = i;
-                score.CourseId = i;
-                score.AverageScore = i % 3 + 8;
-                scores.Add(score);
-            }
-        }
-
         static void Init()
         {
             subjects = (subjects.GetObject<Subject>(folder));
