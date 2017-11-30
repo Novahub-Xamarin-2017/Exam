@@ -43,6 +43,17 @@ namespace Exam1.Models.Base
             return new List<T>();
         }
 
+        public static List<string> GetMenu<T>(this List<T> data, string filePath)
+        {
+
+            if (File.Exists(filePath))
+            {
+                return (!File.ReadAllText(filePath).Any()) ? new List<string>() : File.ReadAllText(filePath).Split(';').ToList();
+            }
+
+            return new List<string>();
+        }
+
         public static int GetId<T>(this List<T> data, bool showList) where T : EasyModel
         {
             if (showList)

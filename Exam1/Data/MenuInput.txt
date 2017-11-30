@@ -1,0 +1,1 @@
+1 Nhap danh sach mon hoc;2 Nhap danh sach giao vien;3 Nhap danh sach lop hoc;4 Nhap danh sach sinh vien;5 Nhap danh sach khoa hoc;6 Nhap danh sach diem;7 Thoat

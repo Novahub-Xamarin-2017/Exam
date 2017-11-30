@@ -51,42 +51,11 @@ namespace Exam1
             students = students.GetObject<Student>(folder);
             scores = scores.GetObject<Score>(folder);
 
-            menu = new List<string>();
-            menu.Add("1 Nhap du lieu");
-            menu.Add("2 Hien thi du lieu");
-            menu.Add("3 Tim kiem du lieu");
-            menu.Add("4 Bao cao");
-            menu.Add("5 Thoat");
-
-            menuInput = new List<string>();
-            menuInput.Add("1 Nhap danh sach mon hoc");
-            menuInput.Add("2 Nhap danh sach giao vien");
-            menuInput.Add("3 Nhap danh sach lop hoc");
-            menuInput.Add("4 Nhap danh sach sinh vien");
-            menuInput.Add("5 Nhap danh sach khoa hoc");
-            menuInput.Add("6 Nhap danh sach diem");
-            menuInput.Add("7 Thoat");
-
-            menuShow = new List<string>();
-            menuShow.Add("1 Hien thi danh sach mon hoc");
-            menuShow.Add("2 Hien thi danh sach giao vien");
-            menuShow.Add("3 Hien thi danh sach lop hoc");
-            menuShow.Add("4 Hien thi danh sach sinh vien");
-            menuShow.Add("5 Thoat");
-
-            menuSearch = new List<string>();
-            menuSearch.Add("1 Tim ten hoc sinh");
-            menuSearch.Add("2 Tim ten lop");
-            menuSearch.Add("3 Thoat");
-
-            menuReport = new List<string>();
-            menuReport.Add("1 Danh sach hoc sinh gioi");
-            menuReport.Add("2 Diem trung binh theo lop");
-            menuReport.Add("3 Top 100 hoc sinh theo diem lop ten");
-            menuReport.Add("4 Top 3 lop co so luong hoc sinh gioi nhieu nhat");
-            menuReport.Add("5 Top 3 lop co diem trung binh cao nhat");
-            menuReport.Add("6 Top 3 giao vien");
-            menuReport.Add("7 Thoat");
+            menu = menu.GetMenu(folder + "/Menu.txt");
+            menuInput = menuInput.GetMenu(folder + "/MenuInput.txt");
+            menuShow = menuShow.GetMenu(folder + "/MenuShow.txt");
+            menuSearch = menuSearch.GetMenu(folder + "/MenuSearch.txt");
+            menuReport = menuReport.GetMenu(folder + "/MenuReport.txt");
         }
 
         static void MenuStart()
@@ -202,34 +171,50 @@ namespace Exam1
                         subjects.ShowConsoleTable();
                         break;
                     case "2":
-                        teachers
-                            .Join(
-                                classes,
-                                x => x.Id,
-                                y => y.TeacherId,
-                                (x, y) => new
+                        var classesHasSumStudent = students
+                            .GroupBy(x => x.ClassId)
+                            .Select(x => new
+                            {
+                                ClassId = x.Key,
+                                SumStudent = x.Count()
+                            });
+
+                        teachers.Select(x => new
+                        {
+                            @Teacher = x,
+
+                            ClassManager = classes
+                                .Where(y => y.TeacherId == x.Id)
+                                .Select(y => new
                                 {
-                                    x,
-                                    ClassManager = y.Name
-                                }).GroupJoin(
-                                    courses,
-                                    x => x.x.Id,
-                                    y => y.TeacherId,
-                                    (x, group) => new
+                                    y.Name
+                                })
+                                .SingleOrDefault(),
+
+                            Subjects = subjects.Where(y => y.Id == x.SubjectId)
+                                .Select(y => new
+                                {
+                                    y.Name
+                                })
+                                .SingleOrDefault(),
+
+                            SumStudent = courses.Where(y => y.TeacherId == x.Id)
+                                .Join(
+                                    classesHasSumStudent,
+                                    y=>y.ClassId,
+                                    z=>z.ClassId,
+                                    (y,z) => new
                                     {
-                                        x,
-                                        group
-                                    }).ToList()
-                                    .ForEach(x =>
-                                    {
-                                        Console.WriteLine(x.x);
-                                        x.group.ToList().ForEach(y=> 
-                                        {
-                                            Console.Write("Subject: ");
-                                            subjects.Where(z => z.Id == y.SubjectId).ToList().ForEach(Console.Write);
-                                            Console.WriteLine($" SumStudent: {students.Where(z => z.Id == y.ClassId).Count()}");
-                                        });
-                                    });
+                                        @Course = y,
+                                        SumStudent = z.SumStudent
+                                    }
+                                )
+                                .GroupBy(y => y.Course.SubjectId)
+                                .Select(y => new
+                                {
+                                    SumStudent = y.Sum(z=>z.SumStudent)
+                                }).SingleOrDefault().SumStudent
+                        }).ShowConsoleTable();
 
                         var teacherId = teachers.GetId(false);
                         courses
@@ -291,7 +276,7 @@ namespace Exam1
 
                         var studentId = students.GetId(false);
                         scores
-                            .Where(x => x.Id == studentId)
+                            .Where(x => x.StudentId == studentId)
                             .ShowConsoleTable();
 
                         break;
@@ -312,7 +297,7 @@ namespace Exam1
                 switch (pick)
                 {
                     case "1":
-                        var searchString = Console.ReadLine();
+                        var searchString = GetSearchString();
                         Console.WriteLine(searchString);
                         students
                             .Where(x => x.Name.Contains(searchString))
@@ -325,7 +310,7 @@ namespace Exam1
 
                         break;
                     case "2":
-                        searchString = Console.ReadLine();
+                        searchString = GetSearchString();
                         classes
                             .Where(x => x.Name.Contains(searchString))
                             .ShowConsoleTable();
@@ -466,17 +451,22 @@ namespace Exam1
 
                         courses.GroupJoin(
                             students,
-                            x=>x.ClassId,
-                            y=>y.ClassId,
-                            (x,group) => new
+                            x => x.ClassId,
+                            y => y.ClassId,
+                            (x, group) => new
                             {
-                                @Course = x,
+                                TeacherId = x.TeacherId,
                                 SumStudent = group.Count()
-                            }
-                            )
+                            })
+                            .GroupBy(x => x.TeacherId)
+                            .Select(x => new
+                            {
+                                SumStudent = x.Sum(y => y.SumStudent),
+                                TeacherId = x.Key
+                            })
                             .Join(
                                 teachers,
-                                x => x.Course.TeacherId,
+                                x => x.TeacherId,
                                 y => y.Id,
                                 (x, y) => new
                                 {
@@ -526,7 +516,7 @@ namespace Exam1
                 .GroupJoin(
                     students,
                     x => x.ClassId,
-                    y => y.Id,
+                    y => y.ClassId,
                     (x, group) => new {
                         student = group
                     }).ToList()
@@ -535,6 +525,12 @@ namespace Exam1
                     });
 
             return students.GetId(false);
+        }
+
+        static string GetSearchString()
+        {
+            Console.Write("Search string: ");
+            return Console.ReadLine();
         }
     }
 }

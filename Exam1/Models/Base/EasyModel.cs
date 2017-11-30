@@ -57,7 +57,7 @@ namespace Exam1.Models.Base
                         case TypeCode.Double:
                             var numberDouble = 0.0;
 
-                            while (!double.TryParse(Console.ReadLine(), out numberDouble))
+                            while (!double.TryParse(Console.ReadLine().Replace('.', ','), out numberDouble))
                             {
                                 Console.WriteLine("Kieu du lieu nhap vao khong dung. Vui long nhap lai hoac nhap 0 de thoat");
                                 Console.Write($"Nhap {prompDisplay?.Display ?? propertyInfo.Name}: ");
@@ -68,7 +68,7 @@ namespace Exam1.Models.Base
                                 Console.WriteLine("Kieu du lieu nhap vao khong dung. Du lieu phai nam trong khoan >=0 va <=10. Vui long nhap lai hoac nhap 0 de thoat");
                                 Console.Write($"Nhap {prompDisplay?.Display ?? propertyInfo.Name}: ");
 
-                                while (!(double.TryParse(Console.ReadLine(), out numberDouble)&&numberDouble>=0&&numberDouble<=10))
+                                while (!(double.TryParse(Console.ReadLine().Replace('.', ','), out numberDouble) && numberDouble >= 0 && numberDouble <= 10)) 
                                 {
                                     Console.WriteLine("Kieu du lieu nhap vao khong dung. Du lieu phai nam trong khoan >=0 va <=10. Vui long nhap lai hoac nhap 0 de thoat");
                                     Console.Write($"Nhap {prompDisplay?.Display ?? propertyInfo.Name}: ");
