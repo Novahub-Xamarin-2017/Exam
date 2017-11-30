@@ -253,8 +253,9 @@ namespace Exam1
                             .Where(x => x.ClassId == classId)
                             .ShowConsoleTable();
 
-                        courseId = courses.GetId(false);scores
-                            .Where(x => x.CourseId == courseId)
+                        var courseId3 = courses.GetId(false);
+                        scores
+                            .Where(x => x.CourseId == courseId3)
                             .ShowConsoleTable();
 
                         break;
