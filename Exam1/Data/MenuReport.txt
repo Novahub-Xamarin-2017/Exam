@@ -1,0 +1,1 @@
+1 Danh sach hoc sinh gioi;2 Diem trung binh theo lop;3 Top 100 hoc sinh theo diem lop ten;4 Top 3 lop co so luong hoc sinh gioi nhieu nhat;5 Top 3 lop co diem trung binh cao nhat;6 Top 3 giao vien;7 Thoat
