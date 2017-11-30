@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ConsoleTables;
 
 namespace Exam1.Models.Base
 {
@@ -40,6 +41,31 @@ namespace Exam1.Models.Base
             }
 
             return new List<T>();
+        }
+
+        public static int GetId<T>(this List<T> data, bool showList) where T : EasyModel
+        {
+            if (showList)
+            {
+                data.ShowConsoleTable();
+            }
+
+            Console.Write($"{typeof(T).Name}Id: ");
+
+            var id = 0;
+
+            while (!int.TryParse(Console.ReadLine(), out id))
+            {
+                Console.WriteLine("Kieu du lieu nhap vao khong dung. Vui long nhap lai hoac nhap 0 de thoat");
+                Console.Write($"{typeof(T).Name}Id: ");
+            }
+
+            return id;
+        }
+
+        public static void ShowConsoleTable<T>(this IEnumerable<T> data)
+        {
+            Console.WriteLine(ConsoleTable.From(data));
         }
     }
 }

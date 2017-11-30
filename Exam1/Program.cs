@@ -3,6 +3,7 @@ using Exam1.Models.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ConsoleTables;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,6 +24,16 @@ namespace Exam1
         public static List<Score> scores;
 
         public static string folder = "../../Data";
+
+        public static List<string> menu;
+
+        public static List<string> menuInput;
+
+        public static List<string> menuShow;
+
+        public static List<string> menuSearch;
+
+        public static List<string> menuReport;
 
         static void Main(string[] args)
         {
@@ -102,18 +113,47 @@ namespace Exam1
             courses = courses.GetObject<Course>(folder);
             students = students.GetObject<Student>(folder);
             scores = scores.GetObject<Score>(folder);
-        }
 
-        static void MenuStart()
-        {
-            var menu = new List<string>();
-
+            menu = new List<string>();
             menu.Add("1 Nhap du lieu");
             menu.Add("2 Hien thi du lieu");
             menu.Add("3 Tim kiem du lieu");
             menu.Add("4 Bao cao");
             menu.Add("5 Thoat");
 
+            menuInput = new List<string>();
+            menuInput.Add("1 Nhap danh sach mon hoc");
+            menuInput.Add("2 Nhap danh sach giao vien");
+            menuInput.Add("3 Nhap danh sach lop hoc");
+            menuInput.Add("4 Nhap danh sach sinh vien");
+            menuInput.Add("5 Nhap danh sach khoa hoc");
+            menuInput.Add("6 Nhap danh sach diem");
+            menuInput.Add("7 Thoat");
+
+            menuShow = new List<string>();
+            menuShow.Add("1 Hien thi danh sach mon hoc");
+            menuShow.Add("2 Hien thi danh sach giao vien");
+            menuShow.Add("3 Hien thi danh sach lop hoc");
+            menuShow.Add("4 Hien thi danh sach sinh vien");
+            menuShow.Add("5 Thoat");
+
+            menuSearch = new List<string>();
+            menuSearch.Add("1 Tim ten hoc sinh");
+            menuSearch.Add("2 Tim ten lop");
+            menuSearch.Add("3 Thoat");
+
+            menuReport = new List<string>();
+            menuReport.Add("1 Danh sach hoc sinh gioi");
+            menuReport.Add("2 Diem trung binh theo lop");
+            menuReport.Add("3 Top 100 hoc sinh theo diem lop ten");
+            menuReport.Add("4 Top 3 lop co so luong hoc sinh gioi nhieu nhat");
+            menuReport.Add("5 Top 3 lop co diem trung binh cao nhat");
+            menuReport.Add("6 Top 3 giao vien");
+            menuReport.Add("7 Thoat");
+        }
+
+        static void MenuStart()
+        {
             var pick = "";
 
             do
@@ -152,16 +192,6 @@ namespace Exam1
 
         static void Input()
         {
-            var menuInput = new List<string>();
-
-            menuInput.Add("1 Nhap danh sach mon hoc");
-            menuInput.Add("2 Nhap danh sach giao vien");
-            menuInput.Add("3 Nhap danh sach lop hoc");
-            menuInput.Add("4 Nhap danh sach sinh vien");
-            menuInput.Add("5 Nhap danh sach khoa hoc");
-            menuInput.Add("6 Nhap danh sach diem");
-            menuInput.Add("7 Thoat");
-
             var pick = "";
 
             do
@@ -176,50 +206,44 @@ namespace Exam1
                         subject.Id = subjects.Count + 1;
                         subject.Input();
                         subjects.Add(subject);
-                        //Console.WriteLine(subject.ToString());
                         break;
                     case "2":
                         var teacher = new Teacher();
                         teacher.Id = teachers.Count + 1;
                         teacher.Input();
-                        teacher.SubjectId = GetSubjectId();
+                        teacher.SubjectId = subjects.GetId(true);
                         teachers.Add(teacher);
-                        //Console.WriteLine(teacher.ToString());
                         break;
                     case "3":
                         var @class = new Class();
                         @class.Id = classes.Count + 1;
                         @class.Input();
-                        @class.TeacherId = GetTeacherId();
+                        @class.TeacherId = teachers.GetId(true);
                         classes.Add(@class);
-                        //Console.WriteLine(@class.ToString());
                         break;
                     case "4":
                         var student = new Student();
                         student.Id = students.Count + 1;
                         student.Input();
-                        student.ClassId = GetClassId();
+                        student.ClassId = classes.GetId(true);
                         students.Add(student);
-                        //Console.WriteLine(student.ToString());
                         break;
                     case "5":
                         var course = new Course();
                         course.Id = courses.Count + 1;
                         course.Input();
-                        course.ClassId = GetClassId();
-                        course.SubjectId = GetSubjectId();
-                        course.TeacherId = GetTeacherId();
+                        course.ClassId = classes.GetId(true);
+                        course.SubjectId = subjects.GetId(true);
+                        course.TeacherId = teachers.GetId(true);
                         courses.Add(course);
-                        //Console.WriteLine(course.ToString());
                         break;
                     case "6":
                         var score = new Score();
                         score.Id = scores.Count + 1;
-                        score.Input();
-                        score.CourseId = GetCourseId();
+                        score.CourseId = courses.GetId(true);
                         score.StudentId = GetStudentId(score.CourseId);
+                        score.Input();
                         scores.Add(score);
-                        //Console.WriteLine(score.ToString());
                         break;
                 }
             }
@@ -228,28 +252,20 @@ namespace Exam1
 
         static void Show()
         {
-            var menuInput = new List<string>();
-
-            menuInput.Add("1 Hien thi danh sach mon hoc");
-            menuInput.Add("2 Hien thi danh sach giao vien");
-            menuInput.Add("3 Hien thi danh sach lop hoc");
-            menuInput.Add("4 Hien thi danh sach sinh vien");
-            menuInput.Add("5 Thoat");
-
             var pick = "";
 
             do
             {
-                menuInput.ForEach(Console.WriteLine);
+                menuShow.ForEach(Console.WriteLine);
 
                 pick = Console.ReadLine();
                 switch (pick)
                 {
                     case "1":
-                        subjects.ForEach(Console.WriteLine);
+                        subjects.ShowConsoleTable();
                         break;
                     case "2":
-                        var teachersHasSubject = teachers
+                        teachers
                             .Join(
                                 classes,
                                 x => x.Id,
@@ -266,34 +282,31 @@ namespace Exam1
                                     {
                                         x,
                                         group
-                                    }).ToList();
+                                    }).ToList()
+                                    .ForEach(x =>
+                                    {
+                                        Console.WriteLine(x.x);
+                                        x.group.ToList().ForEach(y=> 
+                                        {
+                                            Console.Write("Subject: ");
+                                            subjects.Where(z => z.Id == y.SubjectId).ToList().ForEach(Console.Write);
+                                            Console.WriteLine($" SumStudent: {students.Where(z => z.Id == y.ClassId).Count()}");
+                                        });
+                                    });
 
-                        teachersHasSubject.ForEach(x =>
-                        {
-                            Console.WriteLine(x.x);
-                            x.group.ToList().ForEach(y=> 
-                            {
-                                Console.Write("Subject: ");
-                                subjects.Where(z => z.Id == y.SubjectId).ToList().ForEach(Console.Write);
-                                Console.WriteLine($" SumStudent: {students.Where(z => z.Id == y.ClassId).Count()}");
-                            });
-                        });
-
-                        var teacherId = int.Parse(Console.ReadLine());
+                        var teacherId = teachers.GetId(false);
                         courses
                             .Where(x => x.TeacherId == teacherId)
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
-                        var courseId = int.Parse(Console.ReadLine());
+                        var courseId = courses.GetId(false);
                         scores
                             .Where(x => x.CourseId == courseId)
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
                         break;
                     case "3":
-                        var classHasNumberStudent = classes.Join(
+                        classes.Join(
                             teachers,
                             x => x.TeacherId,
                             y => y.Id,
@@ -311,28 +324,20 @@ namespace Exam1
                                     NameClass = x.x.Name,
                                     NameTeacher = x.NameTeacher,
                                     SumStudent = group.Count()
-                                })
-                                .ToList();
+                                }).ShowConsoleTable();
 
-                        classHasNumberStudent.ForEach(Console.WriteLine);
-
-                        var classId = int.Parse(Console.ReadLine());
-                        var coursesFollowClass = courses
+                        var classId = classes.GetId(false);
+                        courses
                             .Where(x => x.ClassId == classId)
-                            .ToList();
+                            .ShowConsoleTable();
 
-                        coursesFollowClass.ForEach(Console.WriteLine);
-
-                        courseId = int.Parse(Console.ReadLine());
-                        var scoresFollowCourse = scores
+                        courseId = courses.GetId(false);scores
                             .Where(x => x.CourseId == courseId)
-                            .ToList();
-
-                        scoresFollowCourse.ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
                         break;
                     case "4":
-                        var studentsFollowClass = classes.GroupJoin(
+                        classes.GroupJoin(
                             students,
                             x => x.Id,
                             y => y.ClassId,
@@ -340,18 +345,17 @@ namespace Exam1
                             {
                                 @class = x,
                                 students = group
-                            }).ToList();
+                            }).ToList()
+                            .ForEach(x =>
+                            {
+                                Console.WriteLine(x.@class.Name);
+                                x.students.ShowConsoleTable();
+                            });
 
-                        studentsFollowClass.ForEach(x =>
-                        {
-                            Console.WriteLine(x.@class.Name);
-                            x.students.ToList().ForEach(Console.WriteLine);
-                        });
-
-                        var studentId = GetStudentId(0);
-                        var scoreOfStudent = scores.Where(x => x.Id == studentId).ToList();
-
-                        scoreOfStudent.ForEach(Console.WriteLine);
+                        var studentId = students.GetId(false);
+                        scores
+                            .Where(x => x.Id == studentId)
+                            .ShowConsoleTable();
 
                         break;
                 }
@@ -361,12 +365,6 @@ namespace Exam1
 
         static void Search()
         {
-            var menuSearch = new List<string>();
-
-            menuSearch.Add("1 Tim ten hoc sinh");
-            menuSearch.Add("2 Tim ten lop");
-            menuSearch.Add("3 Thoat");
-
             var pick = "";
 
             do
@@ -381,34 +379,29 @@ namespace Exam1
                         Console.WriteLine(searchString);
                         students
                             .Where(x => x.Name.Contains(searchString))
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
-                        var studentId = int.Parse(Console.ReadLine());
+                        var studentId = students.GetId(false);
                         scores
                             .Where(x => x.StudentId == studentId)
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
                         break;
                     case "2":
                         searchString = Console.ReadLine();
                         classes
                             .Where(x => x.Name.Contains(searchString))
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
-                        var classId = int.Parse(Console.ReadLine());
+                        var classId = classes.GetId(false);
                         courses
                             .Where(x => x.ClassId == classId)
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
-                        var courseId = int.Parse(Console.ReadLine());
+                        var courseId = courses.GetId(false);
                         scores
                             .Where(x => x.CourseId == courseId)
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
                         break;
                 }
@@ -418,16 +411,6 @@ namespace Exam1
 
         static void Report()
         {
-            var menuSearch = new List<string>();
-
-            menuSearch.Add("1 Danh sach hoc sinh gioi");
-            menuSearch.Add("2 Diem trung binh theo lop");
-            menuSearch.Add("3 Top 100 hoc sinh theo diem lop ten");
-            menuSearch.Add("4 Top 3 lop co so luong hoc sinh gioi nhieu nhat");
-            menuSearch.Add("5 Top 3 lop co diem trung binh cao nhat");
-            menuSearch.Add("6 Top 3 giao vien");
-            menuSearch.Add("7 Thoat");
-
             var pick = "";
 
             var scoresHasWeightScore = scores.Join(
@@ -450,8 +433,7 @@ namespace Exam1
                                     StudentId = n.StudentId,
                                     Score = n.Score,
                                     WeightScore = m.WeightScore
-                                }
-                            ).ToList();
+                                });
 
             var studentsHasAverageScore = students.GroupJoin(
                 scoresHasWeightScore,
@@ -461,12 +443,11 @@ namespace Exam1
                 {
                     Student = x,
                     AverageScore = group.Sum(z => z.Score * z.WeightScore) / group.Sum(z => z.WeightScore)
-                }
-                );
+                });
 
             do
             {
-                menuSearch.ForEach(Console.WriteLine);
+                menuReport.ForEach(Console.WriteLine);
 
                 pick = Console.ReadLine();
                 switch (pick)
@@ -474,27 +455,24 @@ namespace Exam1
                     case "1":
                         studentsHasAverageScore
                             .Where(x => x.AverageScore >= 8)
-                            .OrderBy(x=>x.Student.ClassId)
-                            .ThenBy(x=>x.Student.Name)
-                            .ThenBy(x=>x.AverageScore)
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .OrderBy(x => x.Student.ClassId)
+                            .ThenBy(x => x.Student.Name)
+                            .ThenBy(x => x.AverageScore)
+                            .ShowConsoleTable();
 
                         break;
                     case "2":
-                        var classId = GetClassId();
+                        var classId = classes.GetId(true);
                         studentsHasAverageScore
                             .Where(x => x.Student.ClassId == classId)
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
                         break;
                     case "3":
                         studentsHasAverageScore
                             .OrderByDescending(x => x.AverageScore)
                             .Take(100)
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
                         break;
                     case "4":
@@ -508,11 +486,9 @@ namespace Exam1
                             })
                             .OrderByDescending(x=>x.SumStudent)
                             .Take(3)
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
                         break;
-
                     case "5":
                         studentsHasAverageScore
                             .GroupBy(x => x.Student.ClassId)
@@ -523,11 +499,9 @@ namespace Exam1
                             })
                             .OrderByDescending(x => x.AverageClass)
                             .Take(3)
-                            .ToList()
-                            .ForEach(Console.WriteLine);
+                            .ShowConsoleTable();
 
                         break;
-
                     case "6":
                         courses
                             .GroupBy(x => x.TeacherId)
@@ -551,7 +525,7 @@ namespace Exam1
                                 .OrderByDescending(x => x.SumCourse)
                                 .Take(3)
                                 .ToList()
-                                .ForEach(Console.WriteLine);
+                                .ShowConsoleTable();
 
                         courses.GroupJoin(
                             students,
@@ -577,8 +551,7 @@ namespace Exam1
                                 })
                                 .OrderByDescending(x => x.SumStudent)
                                 .Take(3)
-                                .ToList()
-                                .ForEach(Console.WriteLine);
+                                .ShowConsoleTable();
 
                         scores
                             .GroupBy(x => x.CourseId)
@@ -601,8 +574,7 @@ namespace Exam1
                                     })
                                     .OrderByDescending(x=>x.AverageScore)
                                     .Take(3)
-                                    .ToList()
-                                    .ForEach(Console.WriteLine);
+                                    .ShowConsoleTable();
 
                         break;
                 }
@@ -610,50 +582,9 @@ namespace Exam1
             while (!pick.Equals("7"));
         }
 
-        static int GetTeacherId()
-        {
-            teachers.ForEach(Console.WriteLine);
-
-            var id = int.Parse(Console.ReadLine());
-
-            return id;
-        }
-
-        static int GetClassId()
-        {
-            classes.ForEach(Console.WriteLine);
-
-            var id = int.Parse(Console.ReadLine());
-
-            return id;
-        }
-
-        static int GetSubjectId()
-        {
-            subjects.ForEach(Console.WriteLine);
-
-            var id = int.Parse(Console.ReadLine());
-
-            return id;
-        }
-
-        static int GetCourseId()
-        {
-            courses.ForEach(Console.WriteLine);
-
-            var id = int.Parse(Console.ReadLine());
-
-            return id;
-        }
-
         static int GetStudentId(int courseId)
         {
-            if (courseId==0)
-            {
-                return int.Parse(Console.ReadLine());
-            }
-
-            var studentsFollowCourseId = courses
+            courses
                 .Where(x => x.Id == courseId)
                 .GroupJoin(
                     students,
@@ -661,17 +592,12 @@ namespace Exam1
                     y => y.Id,
                     (x, group) => new {
                         student = group
-                    })
-                .ToList();
+                    }).ToList()
+                    .ForEach(x => {
+                        x.student.ShowConsoleTable();
+                    });
 
-            studentsFollowCourseId.ForEach(x => {
-                x.student.ToList().ForEach(Console.WriteLine);
-            });
-            //courses.ForEach(Console.WriteLine);
-
-            var id = int.Parse(Console.ReadLine());
-
-            return id;
+            return students.GetId(false);
         }
     }
 }

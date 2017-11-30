@@ -43,23 +43,55 @@ namespace Exam1.Models.Base
                         case TypeCode.String:
                             propertyInfo.SetValue(this, Console.ReadLine());
                             break;
-                        case TypeCode.Int16:
-                            propertyInfo.SetValue(this, Convert.ToInt16(Console.ReadLine()));
-                            break;
                         case TypeCode.Int32:
-                            propertyInfo.SetValue(this, Convert.ToInt32(Console.ReadLine()));
+                            var numberInt = 0;
+
+                            while (!int.TryParse(Console.ReadLine(), out numberInt))
+                            {
+                                Console.WriteLine("Kieu du lieu nhap vao khong dung. Vui long nhap lai hoac nhap 0 de thoat");
+                                Console.Write($"Nhap {prompDisplay?.Display ?? propertyInfo.Name}: ");
+                            }
+
+                            propertyInfo.SetValue(this, numberInt);
                             break;
                         case TypeCode.Double:
-                            propertyInfo.SetValue(this, Convert.ToDouble(Console.ReadLine()));
+                            var numberDouble = 0.0;
+
+                            while (!double.TryParse(Console.ReadLine(), out numberDouble))
+                            {
+                                Console.WriteLine("Kieu du lieu nhap vao khong dung. Vui long nhap lai hoac nhap 0 de thoat");
+                                Console.Write($"Nhap {prompDisplay?.Display ?? propertyInfo.Name}: ");
+                            }
+
+                            if (propertyInfo.Name.Equals("AverageScore") && !(numberDouble >= 0 && numberDouble <= 10))
+                            {
+                                Console.WriteLine("Kieu du lieu nhap vao khong dung. Du lieu phai nam trong khoan >=0 va <=10. Vui long nhap lai hoac nhap 0 de thoat");
+                                Console.Write($"Nhap {prompDisplay?.Display ?? propertyInfo.Name}: ");
+
+                                while (!(double.TryParse(Console.ReadLine(), out numberDouble)&&numberDouble>=0&&numberDouble<=10))
+                                {
+                                    Console.WriteLine("Kieu du lieu nhap vao khong dung. Du lieu phai nam trong khoan >=0 va <=10. Vui long nhap lai hoac nhap 0 de thoat");
+                                    Console.Write($"Nhap {prompDisplay?.Display ?? propertyInfo.Name}: ");
+                                }
+                            }
+
+                            propertyInfo.SetValue(this, numberDouble);
                             break;
                         case TypeCode.DateTime:
+                            var datetime = new DateTime();
+
                             var date = Console.ReadLine();
                             var list = date.Split('/').ToList();
-                            var year = int.Parse(list[2]);
-                            var month = int.Parse(list[1]);
-                            var day = int.Parse(list[0]);
-                            var birthday = new DateTime(year, month, day);
-                            propertyInfo.SetValue(this, birthday);
+
+                            while (!(date.Length == 10 && date.Count(x => x == '/') == 2 && DateTime.TryParse(list[2]+"/" + list[1]+"/" + list[0], out datetime)))
+                            {
+                                Console.WriteLine("Kieu du lieu nhap vao khong dung. Vui long nhap lai hoac nhap 00/00/0000 de thoat");
+                                Console.Write($"Nhap {prompDisplay?.Display ?? propertyInfo.Name}(dd/mm/yyyy): ");
+                                date = Console.ReadLine();
+                                list = date.Split('/').ToList();
+                            }
+
+                            propertyInfo.SetValue(this, datetime);
                             break;
                     }
                 }
