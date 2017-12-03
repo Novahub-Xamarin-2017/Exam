@@ -1,6 +1,7 @@
 ﻿using Exam1.Models;
 using Exam1.Models.Base;
 using Exam1.Models.Data;
+using Exam1.Models.Data.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,28 +21,18 @@ namespace Exam1.Menus
             Init();
         }
 
-        public Menu(string folder)
-        {
-            Init(folder);
-        }
-
         void Init()
         {
             dataListModels = new DataListModels();
 
+            dataListModels.LoadAll();
+
             dataMenus = new DataMenus();
-        }
-
-        void Init(string folder)
-        {
-            dataListModels = new DataListModels(folder);
-
-            dataMenus = new DataMenus(folder);
         }
 
         public void Save()
         {
-            dataListModels.Save();
+            dataListModels.SaveAll();
         }
 
         public void MenuStart()
@@ -79,47 +70,79 @@ namespace Exam1.Menus
                 {
                     case "1":
                         var subject = new Subject();
-                        subject.Id = dataListModels.subjects.Count + 1;
+
+                        subject.Id = dataListModels.ForType<Subject>().List.Count + 1;
+
                         subject.Input();
-                        dataListModels.subjects.Add(subject);
+
+                        dataListModels.ForType<Subject>().List.Add(subject);
+
                         break;
                     case "2":
                         var teacher = new Teacher();
-                        teacher.Id = dataListModels.teachers.Count + 1;
+
+                        teacher.Id = dataListModels.ForType<Teacher>().List.Count + 1;
+
                         teacher.Input();
-                        teacher.SubjectId = dataListModels.subjects.GetId(true);
-                        dataListModels.teachers.Add(teacher);
+
+                        teacher.SubjectId = dataListModels.ForType<Subject>().List.GetId(true);
+
+                        dataListModels.ForType<Teacher>().List.Add(teacher);
+
                         break;
                     case "3":
                         var @class = new Class();
-                        @class.Id = dataListModels.classes.Count + 1;
+
+                        @class.Id = dataListModels.ForType<Class>().List.Count + 1;
+
                         @class.Input();
-                        @class.TeacherId = dataListModels.teachers.GetId(true);
-                        dataListModels.classes.Add(@class);
+
+                        @class.TeacherId = dataListModels.ForType<Teacher>().List.GetId(true);
+
+                        dataListModels.ForType<Class>().List.Add(@class);
+
                         break;
                     case "4":
                         var student = new Student();
-                        student.Id = dataListModels.students.Count + 1;
+
+                        student.Id = dataListModels.ForType<Student>().List.Count + 1;
+
                         student.Input();
-                        student.ClassId = dataListModels.classes.GetId(true);
-                        dataListModels.students.Add(student);
+
+                        student.ClassId = dataListModels.ForType<Class>().List.GetId(true);
+
+                        dataListModels.ForType<Student>().List.Add(student);
+
                         break;
                     case "5":
                         var course = new Course();
-                        course.Id = dataListModels.courses.Count + 1;
+
+                        course.Id = dataListModels.ForType<Course>().List.Count + 1;
+
                         course.Input();
-                        course.ClassId = dataListModels.classes.GetId(true);
-                        course.SubjectId = dataListModels.subjects.GetId(true);
-                        course.TeacherId = dataListModels.teachers.GetId(true);
-                        dataListModels.courses.Add(course);
+
+                        course.ClassId = dataListModels.ForType<Class>().List.GetId(true);
+
+                        course.SubjectId = dataListModels.ForType<Subject>().List.GetId(true);
+
+                        course.TeacherId = dataListModels.ForType<Teacher>().List.GetId(true);
+
+                        dataListModels.ForType<Course>().List.Add(course);
+
                         break;
                     case "6":
                         var score = new Score();
-                        score.Id = dataListModels.scores.Count + 1;
-                        score.CourseId = dataListModels.courses.GetId(true);
+
+                        score.Id = dataListModels.ForType<Score>().List.Count + 1;
+
+                        score.CourseId = dataListModels.ForType<Course>().List.GetId(true);
+
                         score.StudentId = GetStudentIdFollowCouseId(score.CourseId);
+
                         score.Input();
-                        dataListModels.scores.Add(score);
+
+                        dataListModels.ForType<Score>().List.Add(score);
+
                         break;
                     case "7":
                         break;
@@ -137,10 +160,12 @@ namespace Exam1.Menus
                 switch (pick)
                 {
                     case "1":
-                        dataListModels.subjects.ShowConsoleTable();
+                        dataListModels.ForType<Subject>().List
+                            .ShowConsoleTable();
+
                         break;
                     case "2":
-                        var classesHasSumStudent = dataListModels.students
+                        var classesHasSumStudent = dataListModels.ForType<Student>().List
                             .GroupBy(x => x.ClassId)
                             .Select(x => new
                             {
@@ -148,11 +173,11 @@ namespace Exam1.Menus
                                 SumStudent = x.Count()
                             });
 
-                        dataListModels.teachers.Select(x => new
+                        dataListModels.ForType<Teacher>().List.Select(x => new
                         {
                             @Teacher = x,
 
-                            ClassManager = dataListModels.classes
+                            ClassManager = dataListModels.ForType<Class>().List
                                 .Where(y => y.TeacherId == x.Id)
                                 .Select(y => new
                                 {
@@ -160,14 +185,14 @@ namespace Exam1.Menus
                                 })
                                 .SingleOrDefault(),
 
-                            Subjects = dataListModels.subjects.Where(y => y.Id == x.SubjectId)
+                            Subjects = dataListModels.ForType<Subject>().List.Where(y => y.Id == x.SubjectId)
                                 .Select(y => new
                                 {
                                     y.Name
                                 })
                                 .SingleOrDefault(),
 
-                            SumStudent = dataListModels.courses.Where(y => y.TeacherId == x.Id)
+                            SumStudent = dataListModels.ForType<Course>().List.Where(y => y.TeacherId == x.Id)
                                 .Join(
                                     classesHasSumStudent,
                                     y => y.ClassId,
@@ -185,20 +210,20 @@ namespace Exam1.Menus
                                 }).SingleOrDefault()
                         }).ShowConsoleTable();
 
-                        var teacherId = dataListModels.teachers.GetId(false);
-                        dataListModels.courses
+                        var teacherId = dataListModels.ForType<Teacher>().List.GetId(false);
+                        dataListModels.ForType<Course>().List
                             .Where(x => x.TeacherId == teacherId)
                             .ShowConsoleTable();
 
-                        var courseId = dataListModels.courses.GetId(false);
-                        dataListModels.scores
+                        var courseId = dataListModels.ForType<Course>().List.GetId(false);
+                        dataListModels.ForType<Score>().List
                             .Where(x => x.CourseId == courseId)
                             .ShowConsoleTable();
 
                         break;
                     case "3":
-                        dataListModels.classes.Join(
-                            dataListModels.teachers,
+                        dataListModels.ForType<Class>().List.Join(
+                            dataListModels.ForType<Teacher>().List,
                             x => x.TeacherId,
                             y => y.Id,
                             (x, y) => new
@@ -206,7 +231,7 @@ namespace Exam1.Menus
                                 x = x,
                                 NameTeacher = y.Name
                             }).GroupJoin(
-                                dataListModels.students,
+                                dataListModels.ForType<Student>().List,
                                 x => x.x.Id,
                                 y => y.ClassId,
                                 (x, group) => new
@@ -217,20 +242,20 @@ namespace Exam1.Menus
                                     SumStudent = group.Count()
                                 }).ShowConsoleTable();
 
-                        var classId = dataListModels.classes.GetId(false);
-                        dataListModels.courses
+                        var classId = dataListModels.ForType<Class>().List.GetId(false);
+                        dataListModels.ForType<Course>().List
                             .Where(x => x.ClassId == classId)
                             .ShowConsoleTable();
 
-                        var courseId3 = dataListModels.courses.GetId(false);
-                        dataListModels.scores
+                        var courseId3 = dataListModels.ForType<Course>().List.GetId(false);
+                        dataListModels.ForType<Score>().List
                             .Where(x => x.CourseId == courseId3)
                             .ShowConsoleTable();
 
                         break;
                     case "4":
-                        dataListModels.classes.GroupJoin(
-                            dataListModels.students,
+                        dataListModels.ForType<Class>().List.GroupJoin(
+                            dataListModels.ForType<Student>().List,
                             x => x.Id,
                             y => y.ClassId,
                             (x, group) => new
@@ -244,8 +269,8 @@ namespace Exam1.Menus
                                 x.students.ShowConsoleTable();
                             });
 
-                        var studentId = dataListModels.students.GetId(false);
-                        dataListModels.scores
+                        var studentId = dataListModels.ForType<Student>().List.GetId(false);
+                        dataListModels.ForType<Score>().List
                             .Where(x => x.StudentId == studentId)
                             .ShowConsoleTable();
 
@@ -268,29 +293,29 @@ namespace Exam1.Menus
                     case "1":
                         var searchString = GetSearchString("ten hoc sinh");
                         Console.WriteLine(searchString);
-                        dataListModels.students
+                        dataListModels.ForType<Student>().List
                             .Where(x => x.Name.Contains(searchString))
                             .ShowConsoleTable();
 
-                        var studentId = dataListModels.students.GetId(false);
-                        dataListModels.scores
+                        var studentId = dataListModels.ForType<Student>().List.GetId(false);
+                        dataListModels.ForType<Score>().List
                             .Where(x => x.StudentId == studentId)
                             .ShowConsoleTable();
 
                         break;
                     case "2":
                         searchString = GetSearchString("ten lop hoc");
-                        dataListModels.classes
+                        dataListModels.ForType<Class>().List
                             .Where(x => x.Name.Contains(searchString))
                             .ShowConsoleTable();
 
-                        var classId = dataListModels.classes.GetId(false);
-                        dataListModels.courses
+                        var classId = dataListModels.ForType<Class>().List.GetId(false);
+                        dataListModels.ForType<Course>().List
                             .Where(x => x.ClassId == classId)
                             .ShowConsoleTable();
 
-                        var courseId = dataListModels.courses.GetId(false);
-                        dataListModels.scores
+                        var courseId = dataListModels.ForType<Course>().List.GetId(false);
+                        dataListModels.ForType<Score>().List
                             .Where(x => x.CourseId == courseId)
                             .ShowConsoleTable();
 
@@ -306,8 +331,8 @@ namespace Exam1.Menus
 
         static void Report()
         {
-            var scoresHasWeightScore = dataListModels.scores.Join(
-                            dataListModels.courses,
+            var scoresHasWeightScore = dataListModels.ForType<Score>().List.Join(
+                            dataListModels.ForType<Course>().List,
                             x => x.CourseId,
                             y => y.Id,
                             (x, y) => new
@@ -317,7 +342,7 @@ namespace Exam1.Menus
                                 Score = x.AverageScore,
                                 SubjectId = y.SubjectId
                             }).Join(
-                                dataListModels.subjects,
+                                dataListModels.ForType<Subject>().List,
                                 n => n.SubjectId,
                                 m => m.Id,
                                 (n, m) => new
@@ -328,7 +353,7 @@ namespace Exam1.Menus
                                     WeightScore = m.WeightScore
                                 });
 
-            var studentsHasAverageScore = dataListModels.students.GroupJoin(
+            var studentsHasAverageScore = dataListModels.ForType<Student>().List.GroupJoin(
                 scoresHasWeightScore,
                 x => x.Id,
                 y => y.StudentId,
@@ -352,7 +377,7 @@ namespace Exam1.Menus
 
                         break;
                     case "2":
-                        var classId = dataListModels.classes.GetId(true);
+                        var classId = dataListModels.ForType<Class>().List.GetId(true);
                         studentsHasAverageScore
                             .Where(x => x.Student.ClassId == classId)
                             .ShowConsoleTable();
@@ -393,7 +418,7 @@ namespace Exam1.Menus
 
                         break;
                     case "6":
-                        dataListModels.courses
+                        dataListModels.ForType<Course>().List
                             .GroupBy(x => x.TeacherId)
                             .Select(x => new
                             {
@@ -401,7 +426,7 @@ namespace Exam1.Menus
                                 TeacherId = x.Key
                             })
                             .Join(
-                                dataListModels.teachers,
+                                dataListModels.ForType<Teacher>().List,
                                 x => x.TeacherId,
                                 y => y.Id,
                                 (x, y) => new
@@ -417,8 +442,8 @@ namespace Exam1.Menus
                                 .ToList()
                                 .ShowConsoleTable();
 
-                        dataListModels.courses.GroupJoin(
-                            dataListModels.students,
+                        dataListModels.ForType<Course>().List.GroupJoin(
+                            dataListModels.ForType<Student>().List,
                             x => x.ClassId,
                             y => y.ClassId,
                             (x, group) => new
@@ -433,7 +458,7 @@ namespace Exam1.Menus
                                 TeacherId = x.Key
                             })
                             .Join(
-                                dataListModels.teachers,
+                                dataListModels.ForType<Teacher>().List,
                                 x => x.TeacherId,
                                 y => y.Id,
                                 (x, y) => new
@@ -448,10 +473,10 @@ namespace Exam1.Menus
                                 .Take(3)
                                 .ShowConsoleTable();
 
-                        dataListModels.scores
+                        dataListModels.ForType<Score>().List
                             .GroupBy(x => x.CourseId)
                             .Join(
-                                dataListModels.courses,
+                                dataListModels.ForType<Course>().List,
                                 x => x.Key,
                                 y => y.Id,
                                 (x, y) => new
@@ -459,7 +484,7 @@ namespace Exam1.Menus
                                     AverageScore = x.Average(z => z.AverageScore),
                                     TeacherId = y.TeacherId
                                 }).Join(
-                                    dataListModels.teachers,
+                                    dataListModels.ForType<Teacher>().List,
                                     x => x.TeacherId,
                                     y => y.Id,
                                     (x, y) => new
@@ -483,10 +508,10 @@ namespace Exam1.Menus
 
         static int GetStudentIdFollowCouseId(int courseId)
         {
-            dataListModels.courses
+            dataListModels.ForType<Course>().List
                 .Where(x => x.Id == courseId)
                 .GroupJoin(
-                    dataListModels.students,
+                    dataListModels.ForType<Student>().List,
                     x => x.ClassId,
                     y => y.ClassId,
                     (x, group) => new {
@@ -496,7 +521,7 @@ namespace Exam1.Menus
                         x.student.ShowConsoleTable();
                     });
 
-            return dataListModels.students.GetId(false);
+            return dataListModels.ForType<Student>().List.GetId(false);
         }
 
         static string GetSearchString(string str)

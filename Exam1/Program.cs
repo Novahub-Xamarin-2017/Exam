@@ -7,6 +7,7 @@ using ConsoleTables;
 using System.Text;
 using System.Threading.Tasks;
 using Exam1.Menus;
+using Exam1.Models.Data.Base;
 
 namespace Exam1
 {
@@ -24,6 +25,26 @@ namespace Exam1
             {
                 menu.Save();
             }
+
+            /*var students = new BaseManager<Student>();
+
+            students.Load();
+
+            //students.list.ForEach(Console.WriteLine);
+
+            var managers = new List<IManager>()
+            {
+                students
+            };
+
+            managers.OfType<BaseManager<Student>>().First().list.ForEach(
+            
+                Console.WriteLine
+            );
+
+            //managers.ForEach(Console.WriteLine);
+
+            Console.ReadKey();*/
         }
     }
 }

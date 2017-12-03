@@ -65,6 +65,8 @@
     <Compile Include="Models\Base\PrompDisplayAttribute.cs" />
     <Compile Include="Models\Class.cs" />
     <Compile Include="Models\Course.cs" />
+    <Compile Include="Models\Data\Base\BaseManager.cs" />
+    <Compile Include="Models\Data\Base\IManager.cs" />
     <Compile Include="Models\Data\DataListModels.cs" />
     <Compile Include="Models\Data\DataMenus.cs" />
     <Compile Include="Models\Score.cs" />
