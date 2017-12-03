@@ -58,12 +58,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Menus\Menu.cs" />
     <Compile Include="Models\Base\EasyModel.cs" />
     <Compile Include="Models\Base\Extension.cs" />
     <Compile Include="Models\Base\IgnoreInputAttribute.cs" />
     <Compile Include="Models\Base\PrompDisplayAttribute.cs" />
     <Compile Include="Models\Class.cs" />
     <Compile Include="Models\Course.cs" />
+    <Compile Include="Models\Data\DataListModels.cs" />
+    <Compile Include="Models\Data\DataMenus.cs" />
     <Compile Include="Models\Score.cs" />
     <Compile Include="Models\Student.cs" />
     <Compile Include="Models\Subject.cs" />

@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using ConsoleTables;
+using Exam1.Models.Data;
 
 namespace Exam1.Models.Base
 {
@@ -54,6 +55,26 @@ namespace Exam1.Models.Base
             return new List<string>();
         }
 
+        public static string GetPick(this List<string> data)
+        {
+            data.ForEach(Console.WriteLine);
+
+            Console.Write($"Nhap 1 so trong khoang tu 1 -> {data.Count} de thuc hien cac chuc nang o ben phai: ");
+            return Console.ReadLine();
+        }
+
+        public static void Menu(this List<string> data, Action<string, int> work)
+        {
+            var pick = "";
+
+            do
+            {
+                pick = data.GetPick();
+                work(pick, data.Count);
+            }
+            while (!pick.Equals(data.Count.ToString())); 
+        }
+
         public static int GetId<T>(this List<T> data, bool showList) where T : EasyModel
         {
             if (showList)
@@ -61,14 +82,14 @@ namespace Exam1.Models.Base
                 data.ShowConsoleTable();
             }
 
-            Console.Write($"{typeof(T).Name}Id: ");
+            Console.Write($"Nhap {typeof(T).Name}Id: ");
 
             var id = 0;
 
             while (!int.TryParse(Console.ReadLine(), out id))
             {
                 Console.WriteLine("Kieu du lieu nhap vao khong dung. Vui long nhap lai hoac nhap 0 de thoat");
-                Console.Write($"{typeof(T).Name}Id: ");
+                Console.Write($"Nhap {typeof(T).Name}Id: ");
             }
 
             return id;
@@ -76,7 +97,14 @@ namespace Exam1.Models.Base
 
         public static void ShowConsoleTable<T>(this IEnumerable<T> data)
         {
-            Console.WriteLine(ConsoleTable.From(data));
+            if (data.Any())
+            {
+                Console.WriteLine(ConsoleTable.From(data));
+
+                return;
+            }
+
+            Console.WriteLine("Khong tim thay du lieu");
         }
     }
 }
